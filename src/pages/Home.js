@@ -22,35 +22,18 @@ function HomePage() {
 
     // Function to handle boundary input changes and update boundary state
     const handleBoundaryChange = (event) => {
-        setBoundary(event.target.value);  // Update state with input value
+        setBoundary(event.target.value.split(',').map(Number));  // Update state with input value
     };
 
     // Function to fetch items based on the search query and boundary
     const getItems = async () => {
         try {
-            const data = await searchForWSI(imageUrl, boundary);  // Use searchQuery and boundary in the API call
+            const data = await searchForWSI(imageUrl, boundary, 50);  // Use searchQuery and boundary in the API call
             setItem(data);  // Update item state with the fetched data
         } catch (error) {
             console.error('Error fetching items:', error);
         }
     };
-
-    // Function to parse boundary and calculate the center point
-    const getCenterPointFromBoundary = (boundaryStr) => {
-        try {
-            const boundaryArray = JSON.parse(boundaryStr);  // Parse the JSON string into an array
-            const [left, top, right, bottom] = boundaryArray;  // Destructure the array
-            const centerX = (left + right) / 2;
-            const centerY = (top + bottom) / 2;
-            return [centerX, centerY];  // Return the center point as [x, y]
-        } catch (error) {
-            console.error('Error parsing boundary or calculating center:', error);
-            return null;  // Return null if there's an error
-        }
-    };
-
-    // Get the center point from the boundary
-    const centerPoint = getCenterPointFromBoundary(boundary);
 
     return (
         <div>
@@ -81,10 +64,10 @@ function HomePage() {
             <WebSocketComponent onImageUpdate={handleImageUpdate} />
 
             {/* Conditionally render the image with the center point */}
-            {image && image.url && centerPoint? (
+            {image && image.url && boundary? (
                 <div>
                     {/* Pass the image URL and the calculated center point */}
-                    <ImageWithPoints imageUrl={image.url} points={[image.path, centerPoint ]} />
+                    <ImageWithPoints imageUrl={image.url} points={[image.path, boundary ]} />
                     <p>Vector Data: {JSON.stringify(image.vector)}</p>
                 </div>
             ) : (
